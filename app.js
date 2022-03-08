@@ -40,6 +40,7 @@ function printTodo({id, userId, title, completed}){
     const close = document.createElement('span');
     close.innerHTML ='&times;';
     close.className ='close';
+    close.addEventListener('click', handleClose);
 
     li.prepend(status);
     li.append(close);
@@ -47,8 +48,19 @@ function printTodo({id, userId, title, completed}){
 
     todoList.prepend(li);
 }
+function removeTodo(todoId){
+    todos = todos.filter(todo => todo.id !== todoId);
+
+    const todo = todoList.querySelector(`[data-id="${todoId}"]`);
+    todo.querySelector('input').removeEventListener('change', handleTodoChange);
+    todo.querySelector('.close').removeEventListener('click', handleClose);
 
 
+    todo.remove();
+}
+function objectError(error){
+    alert(error.message);
+}
 //Event logic
 function initApp(){
     Promise.all([getAllTodos(), getAllUsers()]).then(values => 
@@ -58,7 +70,6 @@ function initApp(){
         users.forEach(user => createUserOption(user))
     })
 }
-
 function handleSubmit(event){
     event.preventDefault();
 
@@ -75,9 +86,16 @@ function handleTodoChange(){
 }
 //Создание асинхронных функций async logic
 async function getAllTodos(){
-const response = await fetch('https://jsonplaceholder.typicode.com/todos');
-const data = await response.json();
-return data;
+
+    try{
+        const response = await fetch('https://jsonplaceholder.typicode.com/todos');
+        const data = await response.json();
+        return data;
+    }
+    catch(error){
+        alerError(error);
+    }
+
 }
 
 async function getAllUsers(){
@@ -100,7 +118,10 @@ async function createTodo(todo){
     
     printTodo(newTodo);
 }
-
+function handleClose(event){
+    const todoId = event.target.parentElement.dataset.id;
+    deleteTodo(todoId)
+}
 async function toggleTodoComplete(todoId, completed){
 const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoId}`,
     {method: 'PATCH',
@@ -111,9 +132,22 @@ const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoI
         }
     );
  
-
-
     if(!response.ok){
         //error
+    }
+}
+
+async function deleteTodo(todoId){
+const response = await fetch(
+    `https://jsonplaceholder.typicode.com/todos/${todoId}`, 
+    {
+        method: 'DELETE',
+        headers: {
+            "content-Type": "application/json",
+            },
+        }
+    );
+    if(response.ok){
+        removeTodo(todoId);
     }
 }
