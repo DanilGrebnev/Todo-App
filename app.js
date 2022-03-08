@@ -110,8 +110,8 @@ const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoI
             },
         }
     );
-    const data = await response.json();
-console.log(data)
+ 
+
 
     if(!response.ok){
         //error
