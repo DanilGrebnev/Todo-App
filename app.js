@@ -22,27 +22,27 @@ userSelect.append(option)
 //Basic logic
 function getUserName(userId){
 const user = users.find(u => u.id === userId);
+
 return user.name;
 }
 function printTodo({id, userId, title, completed}){
-const li = document.createElement('li');
-li.className ='todo-item';
-li.dataset.id=id;
-li.innerHTML = `<span>${title} <b>${getUserName(userId)}</b></span>`;
+    const li = document.createElement('li');
+    li.className ='todo-item';
+    li.dataset.id=id;
+    li.innerHTML = `<span>${title} <b>${getUserName(userId)}</b></span>`;
+
+    const status = document.createElement('input');
+    status.type ='checkbox';
+    status.checked = completed; 
+    const close = document.createElement('span');
+    close.innerHTML ='&times;';
+    close.className ='close';
+
+    li.prepend(status);
+    li.append(close);
 
 
-const status = document.createElement('input');
-status.type ='checkbox';
-status.checked = completed; 
-const close = document.createElement('span');
-close.innerHTML ='&times;';
-close.className ='close';
-
-li.prepend(status);
-li.append(close);
-
-
-todoList.prepend(li);
+    todoList.prepend(li);
 }
 
 
@@ -58,9 +58,10 @@ function initApp(){
 
 function handleSubmit(event){
     event.preventDefault();
+
     createTodo({
-        userId: form.user.value,
-        title: form.todo.title,
+        userId: Number(form.user.value),
+        title: form.todo.value,
         completed: false,
     });
 }
@@ -88,8 +89,23 @@ async function createTodo(todo){
 
     }));
 
-    const todo = await response.json(); 
+    const newTodo = await response.json(); 
     
-    printTodo(todo);
+    printTodo(newTodo);
 }
 
+async function toggleTodoComplete(todoId, completed){
+const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoId}`,
+    {method: 'PATCH',
+        body: JSON.stringify({completed}),
+            headers: {
+                "content-Type": "application/json",
+            },
+        }
+    );
+
+
+    if(!response.ok){
+        //error
+    }
+}
