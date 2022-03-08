@@ -34,6 +34,9 @@ function printTodo({id, userId, title, completed}){
     const status = document.createElement('input');
     status.type ='checkbox';
     status.checked = completed; 
+    status.addEventListener('change', handleTodoChange);
+
+
     const close = document.createElement('span');
     close.innerHTML ='&times;';
     close.className ='close';
@@ -65,7 +68,11 @@ function handleSubmit(event){
         completed: false,
     });
 }
-
+function handleTodoChange(){
+    const todoId = this.parentElement.dataset.id;
+    const completed = this.checked;
+    toggleTodoComplete(todoId, completed);
+}
 //Создание асинхронных функций async logic
 async function getAllTodos(){
 const response = await fetch('https://jsonplaceholder.typicode.com/todos');
@@ -103,7 +110,8 @@ const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${todoI
             },
         }
     );
-
+    const data = await response.json();
+console.log(data)
 
     if(!response.ok){
         //error
